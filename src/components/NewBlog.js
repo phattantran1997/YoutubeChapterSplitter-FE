@@ -1,7 +1,7 @@
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useEffect } from "react";
 import { createBlog } from "../reducers/blogReducer";
 import { useDispatch } from "react-redux";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { setNotification } from "../reducers/notificationReducer";
 import { TextInput, Label, Textarea, Button, Progress } from "flowbite-react";
 import BlogFooter from "./BlogFooter";
@@ -15,7 +15,24 @@ const NewBlog = () => {
   const [newContent, setNewContent] = useState("");
   const [images, setImages] = useState([]);
   const [gifUrl, setGifUrl] = useState(null);
+  const [videoUrls, setVideoUrls] = useState([]);
   const [progress, setProgress] = useState(0);
+  const location = useLocation(); // Access the location object
+  useEffect(() => {
+    if (location.state && location.state.videos) {
+      console.log(location.state);
+      const videosContent = location.state.videos.join("\n");
+      const videoUrls = location.state.videos.map((chapterTitle) => {
+        const sanitizedTitle = chapterTitle.replace(/[^a-zA-Z0-9 ]/g, '').replace(/\s+/g, '_');
+        const filename = `${location.state.videoId}_${sanitizedTitle}`;
+        return `http://localhost:3000/api/youtube/videos/${filename}`;
+      });
+      console.log(videoUrls);
+      setVideoUrls(videoUrls); // Set the array of video URLs
+      const newContent = `Chapters of ${location.state.videoId} will share\n ${videosContent}`;
+      setNewContent(newContent);
+    }
+  }, [location.state]);
 
   const navigate = useNavigate();
 
@@ -24,6 +41,7 @@ const NewBlog = () => {
     const blogObject = {
       title: newTitle,
       content: newContent,
+      videos: videoUrls,
       dateCreated: new Date(),
     };
     addNewBlog(blogObject);
@@ -122,6 +140,17 @@ const NewBlog = () => {
                     onChange={({ target }) => setNewContent(target.value)}
                     rows={10}
                   />
+                </div>
+                {/* Render multiple video tags based on videoUrls */}
+                <div>
+                  {videoUrls.map((url, index) => (
+                    <div key={index} className="mb-4">
+                      <video width="600" controls>
+                        <source src={url} type="video/mp4" />
+                        Your browser does not support the video tag.
+                      </video>
+                    </div>
+                  ))}
                 </div>
                 {gifUrl && (
                   <div className="mt-4">

@@ -161,7 +161,16 @@ const BlogView = ({ blog }) => {
             >
               {blog.content}
             </p>
-
+            <div>
+                  {blog.videos.map((url, index) => (
+                    <div key={index} className="mb-4">
+                      <video width="600" controls>
+                        <source src={url} type="video/mp4" />
+                        Your browser does not support the video tag.
+                      </video>
+                    </div>
+                  ))}
+                </div>
             <section className="not-format">
               <div className="flex justify-between items-center mt-8 mb-6">
                 <h2 className="text-lg lg:text-2xl font-bold text-gray-900 dark:text-white">

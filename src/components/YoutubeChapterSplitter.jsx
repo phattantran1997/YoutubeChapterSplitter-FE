@@ -89,9 +89,7 @@ const YoutubeChapterSplitter = () => {
       const chapter = selectedChapters[i];
       try {
         const sanitizedTitle = chapter.title.replace(/[^a-zA-Z0-9 ]/g, '').replace(/\s+/g, '_');
-        const filename = `${videoId}_${sanitizedTitle}`; 
-        console.log(`Downloading: ${filename}`);
-        
+        const filename = `${videoId}_${sanitizedTitle}`;         
         const downloadURL = `${process.env.REACT_APP_BE_SIDE_URL}/youtube/download-video/${filename}`;
         
         const link = document.createElement("a");
@@ -110,8 +108,7 @@ const YoutubeChapterSplitter = () => {
   };
 
   const handleShare = () => {
-    navigate("/create",{ state: { videos: selectedChapters.map((chapter)=>chapter.title) }});
-    alert('Share functionality will be implemented here.');
+    navigate("/create",{ state: { videos: selectedChapters.map((chapter)=>chapter.title) , videoId: videoId}});
   };
 
   return (
