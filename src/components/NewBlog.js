@@ -3,32 +3,33 @@ import { createBlog } from "../reducers/blogReducer";
 import { useDispatch } from "react-redux";
 import { useNavigate, useLocation } from "react-router-dom";
 import { setNotification } from "../reducers/notificationReducer";
-import { TextInput, Label, Textarea, Button, Progress } from "flowbite-react";
+import { TextInput, Label, Textarea, Button } from "flowbite-react";
 import BlogFooter from "./BlogFooter";
-import CreateIcon from '@mui/icons-material/Create';
-import GifIcon from '@mui/icons-material/Gif';
-import { createGIF } from 'gifshot';
+import axios from "axios";
 
 const NewBlog = () => {
   const dispatch = useDispatch();
   const [newTitle, setNewTitle] = useState("");
   const [newContent, setNewContent] = useState("");
   const [images, setImages] = useState([]);
-  const [gifUrl, setGifUrl] = useState(null);
-  const [videoUrls, setVideoUrls] = useState([]);
-  const [progress, setProgress] = useState(0);
+  const [videoFile, setVideoFile] = useState(null); // State for the selected video file
+  const [videoTitle, setVideoTitle] = useState(""); // State for the video title
+  const [videos, setVideos] = useState([]); // State to hold the videos array
   const location = useLocation(); // Access the location object
+
   useEffect(() => {
     if (location.state && location.state.videos) {
-      console.log(location.state);
       const videosContent = location.state.videos.join("\n");
-      const videoUrls = location.state.videos.map((chapterTitle) => {
+      const videos = location.state.videos.map((chapterTitle) => {
         const sanitizedTitle = chapterTitle.replace(/[^a-zA-Z0-9 ]/g, '').replace(/\s+/g, '_');
-        const filename = `${location.state.videoId}_${sanitizedTitle}`;
-        return `http://localhost:3000/api/youtube/videos/${filename}`;
+        const filename = `${location.state.videoId}_${sanitizedTitle}.mp4`;
+        return {
+          url: `http://localhost:3000/api/youtube/videos/${filename}`,
+          title: chapterTitle,
+        };
       });
-      console.log(videoUrls);
-      setVideoUrls(videoUrls); // Set the array of video URLs
+      console.log(videos);
+      setVideos(videos); // Set the array of video objects
       const newContent = `Chapters of ${location.state.videoId} will share\n ${videosContent}`;
       setNewContent(newContent);
     }
@@ -36,18 +37,43 @@ const NewBlog = () => {
 
   const navigate = useNavigate();
 
-  const addBlog = (event) => {
+  const addBlog = async (event) => {
     event.preventDefault();
+
+    if (videoFile && videoTitle) {
+      try {
+        const formData = new FormData();
+        formData.append("video", videoFile);
+        formData.append("title", videoTitle);
+
+        const response = await axios.post(`${process.env.REACT_APP_BE_SIDE_URL}/blogs/upload-video`, formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data'
+          }
+        });
+
+        const uploadedVideo = {
+          url: response.data.url, // Assuming backend returns a URL for the uploaded video
+          title: response.data.title,
+        };
+
+        setVideos([...videos, uploadedVideo]);
+      } catch (error) {
+        console.error('Error uploading video:', error);
+        alert('Failed to upload video');
+      }
+    }
+    console.log('abc',videos);
+
     const blogObject = {
       title: newTitle,
       content: newContent,
-      videos: videoUrls,
+      videos: videos,
       dateCreated: new Date(),
     };
     addNewBlog(blogObject);
     setNewContent("");
     setNewTitle("");
-    setGifUrl(null);
   };
 
   const addNewBlog = async (blogObject) => {
@@ -57,7 +83,7 @@ const NewBlog = () => {
         type: "success",
       };
       await dispatch(createBlog(blogObject));
-      navigate("/");
+      //navigate("/");
 
       dispatch(setNotification(notif1, 2500));
     } catch (exception) {
@@ -74,35 +100,9 @@ const NewBlog = () => {
     setImages([...uploadedImages]);
   }, []);
 
-
-
-  const createGifFromImages = useCallback(() => {
-    if (images.length === 0) {
-      alert("Please upload images first.");
-      return;
-    }
-
-    const imageUrls = images.map((image) => URL.createObjectURL(image));
-
-    const options = {
-      images: imageUrls,
-      gifWidth: 500,
-      gifHeight: 300,
-      numWorkers: 1,
-      frameDuration: 1,
-      progressCallback: (progress) => {
-        setProgress(progress * 100);
-      },
-    };
-
-    createGIF(options, (obj) => {
-      if (!obj.error) {
-        setGifUrl(obj.image);
-        setProgress(100);
-        // setNewContent((prevContent) => `${prevContent}\n<img src="${obj.image}" alt="Generated GIF" style={{ maxWidth: '100px', maxHeight: '100px' }}/>`);
-      }
-    });
-  }, [images]);
+  const handleVideoUpload = (e) => {
+    setVideoFile(e.target.files[0]);
+  };
 
   return (
     <>
@@ -141,84 +141,54 @@ const NewBlog = () => {
                     rows={10}
                   />
                 </div>
-                {/* Render multiple video tags based on videoUrls */}
+                {/* Video Upload Section */}
                 <div>
-                  {videoUrls.map((url, index) => (
+                  <div className="mb-2 block">
+                    <Label htmlFor="video-upload" value="Upload Video" />
+                  </div>
+                  <input
+                    id="video-upload"
+                    type="file"
+                    accept="video/*"
+                    onChange={handleVideoUpload}
+                    className="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 dark:text-gray-400 dark:border-gray-600 dark:placeholder-gray-400 dark:bg-gray-700"
+                  />
+                </div>
+                <div>
+                  <div className="mb-2 block">
+                    <Label htmlFor="video-title" value="Title of Video" />
+                  </div>
+                  <TextInput
+                    id="video-title"
+                    type="text"
+                    placeholder="Title of Video"
+                    required={true}
+                    value={videoTitle}
+                    onChange={({ target }) => setVideoTitle(target.value)}
+                  />
+                </div>
+                {/* Render multiple video tags based on videos array */}
+                <div>
+                  {videos.map((video, index) => (
                     <div key={index} className="mb-4">
+                      <h3 className="text-lg font-semibold mb-2">{video.title}</h3>
                       <video width="600" controls>
-                        <source src={url} type="video/mp4" />
+                        <source src={video.url} type="video/mp4" />
                         Your browser does not support the video tag.
                       </video>
                     </div>
                   ))}
                 </div>
-                {gifUrl && (
-                  <div className="mt-4">
-                    <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
-                      Generated GIF:
-                    </h2>
-                    <img
-                      src={gifUrl}
-                      alt="Generated GIF"
-                      className="w-full h-auto rounded-lg shadow-md mt-2"
-                      style={{ maxWidth: '100px', maxHeight: '100px' }}
-                    />
-                  </div>
-                )}
-                <div>
-                  <div className="mb-2 block">
-                    <Label htmlFor="image-upload" value="Upload Images" />
-                  </div>
-                  <input
-                    id="image-upload"
-                    type="file"
-                    multiple
-                    accept="image/*"
-                    onChange={handleImageUpload}
-                    className="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 dark:text-gray-400 dark:border-gray-600 dark:placeholder-gray-400 dark:bg-gray-700"
-                  />
-                  <div className="mt-2 flex flex-wrap gap-2">
-                    {images.map((image, index) => (
-                      <img
-                        key={index}
-                        src={URL.createObjectURL(image)}
-                        alt={`upload-${index}`}
-                        className="w-24 h-24 object-cover rounded"
-                      />
-                    ))}
-                  </div>
-                </div>
-
-                <div className="flex justify-between items-center mt-4">
-                  <Button
-                    type="button"
-                    onClick={createGifFromImages}
-                    color="purple"
-                    className="bg-purple-500 text-white hover:bg-purple-600"
-                  >
-                    <GifIcon className="mr-2" />
-                    Create GIF
-                  </Button>
-                  <Button
-                    type="submit"
-                    className="bg-blue-500 text-white hover:bg-blue-600"
-                  >
-                    <CreateIcon className="mr-2" />
+                <div className="mt-4">
+                  <Button type="submit" className="bg-blue-500 text-white hover:bg-blue-600">
                     Submit Post
                   </Button>
                 </div>
               </form>
-              {progress > 0 && progress < 100 && (
-                <div className="mt-4">
-                  <label>Creating GIF... {progress}%</label>
-                  <Progress value={progress} />
-                </div>
-              )}
             </article>
           </div>
         </main>
       </div>
-
       <BlogFooter />
     </>
   );

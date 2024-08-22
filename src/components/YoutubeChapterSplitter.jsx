@@ -89,7 +89,7 @@ const YoutubeChapterSplitter = () => {
       const chapter = selectedChapters[i];
       try {
         const sanitizedTitle = chapter.title.replace(/[^a-zA-Z0-9 ]/g, '').replace(/\s+/g, '_');
-        const filename = `${videoId}_${sanitizedTitle}`;         
+        const filename = `${videoId}_${sanitizedTitle}.mp4`;         
         const downloadURL = `${process.env.REACT_APP_BE_SIDE_URL}/youtube/download-video/${filename}`;
         
         const link = document.createElement("a");
