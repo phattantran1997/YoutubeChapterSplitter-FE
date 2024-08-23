@@ -23,7 +23,7 @@ const NewBlog = () => {
         const sanitizedTitle = chapterTitle.replace(/[^a-zA-Z0-9 ]/g, '').replace(/\s+/g, '_');
         const filename = `${location.state.videoId}_${sanitizedTitle}.mp4`;
         return {
-          url: `http://localhost:3000/api/youtube/videos/${filename}`,
+          url: `${process.env.REACT_APP_BE_SIDE_URL}/youtube/videos/${filename}`,
           title: chapterTitle,
         };
       });
