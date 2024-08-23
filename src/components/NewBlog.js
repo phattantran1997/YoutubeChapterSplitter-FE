@@ -13,7 +13,6 @@ const NewBlog = () => {
   const [newContent, setNewContent] = useState("");
   const [images, setImages] = useState([]);
   const [videoFile, setVideoFile] = useState(null); // State for the selected video file
-  const [videoTitle, setVideoTitle] = useState(""); // State for the video title
   const [videos, setVideos] = useState([]); // State to hold the videos array
   const location = useLocation(); // Access the location object
 
@@ -40,11 +39,10 @@ const NewBlog = () => {
   const addBlog = async (event) => {
     event.preventDefault();
 
-    if (videoFile && videoTitle) {
+    if (videoFile ) {
       try {
         const formData = new FormData();
         formData.append("video", videoFile);
-        formData.append("title", videoTitle);
 
         const response = await axios.post(`${process.env.REACT_APP_BE_SIDE_URL}/blogs/upload-video`, formData, {
           headers: {
@@ -53,29 +51,37 @@ const NewBlog = () => {
         });
 
         const uploadedVideo = {
-          url: response.data.url, // Assuming backend returns a URL for the uploaded video
+          url: `${process.env.REACT_APP_BE_SIDE_URL}/youtube/download-video/${response.data.url}`,
           title: response.data.title,
         };
 
-        setVideos([...videos, uploadedVideo]);
+         // Use callback to ensure the videos state is updated before proceeding
+      setVideos((prevVideos) => {
+        const updatedVideos = [...prevVideos, uploadedVideo];
+        createBlogPost(updatedVideos); // Create blog post with updated videos
+        return updatedVideos;
+      });
       } catch (error) {
         console.error('Error uploading video:', error);
         alert('Failed to upload video');
       }
     }
-    console.log('abc',videos);
-
+    else {
+      createBlogPost(videos);
+    }
+    
+  };
+  const createBlogPost = async (videosToUse) => {
     const blogObject = {
       title: newTitle,
       content: newContent,
-      videos: videos,
+      videos: videosToUse, // Use the updated videos array
       dateCreated: new Date(),
     };
     addNewBlog(blogObject);
     setNewContent("");
     setNewTitle("");
   };
-
   const addNewBlog = async (blogObject) => {
     try {
       const notif1 = {
@@ -152,19 +158,6 @@ const NewBlog = () => {
                     accept="video/*"
                     onChange={handleVideoUpload}
                     className="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 dark:text-gray-400 dark:border-gray-600 dark:placeholder-gray-400 dark:bg-gray-700"
-                  />
-                </div>
-                <div>
-                  <div className="mb-2 block">
-                    <Label htmlFor="video-title" value="Title of Video" />
-                  </div>
-                  <TextInput
-                    id="video-title"
-                    type="text"
-                    placeholder="Title of Video"
-                    required={true}
-                    value={videoTitle}
-                    onChange={({ target }) => setVideoTitle(target.value)}
                   />
                 </div>
                 {/* Render multiple video tags based on videos array */}
