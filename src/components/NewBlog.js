@@ -21,9 +21,11 @@ const NewBlog = () => {
       const videosContent = location.state.videos.join("\n");
       const videos = location.state.videos.map((chapterTitle) => {
         const sanitizedTitle = chapterTitle.replace(/[^a-zA-Z0-9 ]/g, '').replace(/\s+/g, '_');
-        const filename = `${location.state.videoId}_${sanitizedTitle}.mp4`;
+        const filename = `${location.state.videoId}_${sanitizedTitle}`;
         return {
-          url: `${process.env.REACT_APP_BE_SIDE_URL}/youtube/videos/${filename}`,
+          url: `${process.env.REACT_APP_BE_SIDE_URL}/youtube/videos/${filename}.mp4`,
+          thumbnail: `${process.env.REACT_APP_BE_SIDE_URL}/youtube/thumbnail/${filename}.png`,
+          filename: filename,
           title: chapterTitle,
         };
       });
@@ -53,6 +55,7 @@ const NewBlog = () => {
         const uploadedVideo = {
           url: `${process.env.REACT_APP_BE_SIDE_URL}/youtube/download-video/${response.data.url}`,
           title: response.data.title,
+          
         };
 
          // Use callback to ensure the videos state is updated before proceeding

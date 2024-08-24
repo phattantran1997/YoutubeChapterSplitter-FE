@@ -12,13 +12,13 @@ import BlogFooter from "./BlogFooter";
 import Comment from "./Comment";
 
 const BlogView = ({ blog }) => {
+  console.log(blog);
   const user = useSelector((state) => state.users);
   const allUsers = useSelector((state) => state.allUsers);
   const [newComment, setNewComment] = useState("");
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const blogs = useSelector((state) => state.blogs);
-  
   if (blog === undefined) {
     return <Spinner />;
   }
@@ -44,8 +44,8 @@ const BlogView = ({ blog }) => {
       dispatch(setNotification(notif, 2500));
     }
   };
-
   const handleDeleteBlog = async (id) => {
+    const blog1 = blogs.filter((b) => b.id === id);
     if (!user) {
       navigate("/login");
     }
@@ -97,7 +97,7 @@ const BlogView = ({ blog }) => {
   return (
     <div className="">
       <main className="pt-8 pb-16 lg:pt-16 lg:pb-24 bg-white dark:bg-gray-900">
-        <div className="flex justify-between px-4 mx-auto max-w-screen-xl">
+        <div className="flex justify-between px-4 mx-auto max-w-screen-xl ">
           <article className="mx-auto w-full max-w-2xl format format-sm sm:format-base lg:format-lg format-blue dark:format-invert">
             <header className="mb-4 lg:mb-6 not-format">
               <h1 className="mb-4 text-3xl font-extrabold leading-tight text-gray-900 lg:mb-6 lg:text-4xl dark:text-white">
@@ -106,6 +106,17 @@ const BlogView = ({ blog }) => {
               <address className="flex items-center mb-6 not-italic">
                 <div className="inline-flex items-center mr-3 text-sm text-gray-900 dark:text-white">
                   <div>
+                    {/* <a
+                      href={
+                        `/users/${blog.user.username}` ||
+                        `/users/${user1.username}`
+                      }
+                      rel="author"
+                      className="text-lg font-bold text-gray-900 dark:text-white"
+                    >
+                      u/
+                      {blog.user.username || user1.username}
+                    </a> */}
                     <p className="text-base font-light text-gray-500 dark:text-gray-400">
                       Posted on{" "}
                       {new Date(blog.dateCreated).toLocaleDateString("en-GB")}
@@ -113,16 +124,17 @@ const BlogView = ({ blog }) => {
                     <p className="inline mr-2 text-sm font-light text-gray-500 dark:text-gray-400">
                       {blog.likes} {blog.likes === 1 ? "like" : "likes"}
                     </p>{" "}
-                    <p className="inline text-sm font-light text-gray-500 dark:text-gray-400">
+                    <p className="inline  text-sm font-light text-gray-500 dark:text-gray-400">
                       {comments.length}{" "}
                       {comments.length === 1 ? "comment" : "comments"}
                     </p>
                     <div className="flex flex-wrap items-center gap-2 mt-6">
                       <IconButton onClick={() => handleUpdateBlog(blog)}>
                         <FavoriteIcon className="h-6 w-6" />
+                       
                       </IconButton>
                       {user &&
-                        (user.id === blog.user.id || user.id === blog.user) ? (
+                      (user.id === blog.user.id || user.id === blog.user) ? (
                         <>
                           <IconButton
                             href={`/posts/edit/${blog.id}`}
@@ -146,19 +158,22 @@ const BlogView = ({ blog }) => {
             <p
               className="text-gray-500 text-lg dark:text-gray-400"
               align="justify"
-              dangerouslySetInnerHTML={{ __html: blog.content.replace(/\n/g, '<br/>') }}
-            ></p>
+            >
+              {blog.content}
+            </p>
+            <br />
             <div>
-              {blog.videos.map((video, index) => (
-                <div key={index} className="mb-4">
-                  <h3 className="text-lg font-semibold mb-2">{video.title}</h3>
-                  <video width="600" controls>
-                    <source src={video.url} type="video/mp4" />
-                    Your browser does not support the video tag.
-                  </video>
+                  {blog.videos.map((video, index) => (
+                    
+                    <div key={index} className="mb-4">
+                      <div className="font-bold mb-1">{video.title}</div>
+                      <video width="600" controls>
+                        <source src={video.url} type="video/mp4" />
+                        Your browser does not support the video tag.
+                      </video>
+                    </div>
+                  ))}
                 </div>
-              ))}
-            </div>
             <section className="not-format">
               <div className="flex justify-between items-center mt-8 mb-6">
                 <h2 className="text-lg lg:text-2xl font-bold text-gray-900 dark:text-white">

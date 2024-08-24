@@ -10,6 +10,7 @@ const BlogEdit = ({ blog }) => {
   const dispatch = useDispatch();
   const [newTitle, setNewTitle] = useState("");
   const [newContent, setNewContent] = useState("");
+  const [newVideos, setnewVideos] = useState([]);
 
   const navigate = useNavigate();
   if (blog === undefined) {
@@ -18,6 +19,7 @@ const BlogEdit = ({ blog }) => {
   if (blog && newTitle === "") {
     setNewTitle(blog.title);
     setNewContent(blog.content);
+    setnewVideos(blog.videos);
   }
 
   const editBlog = (event) => {
@@ -26,8 +28,10 @@ const BlogEdit = ({ blog }) => {
       ...blog,
       title: newTitle,
       content: newContent,
+      videos: newVideos,
       dateCreated: new Date(),
     };
+    console.log(blogObject);
     editNewBlog(blogObject);
     setNewContent("");
     setNewTitle("");
@@ -50,6 +54,26 @@ const BlogEdit = ({ blog }) => {
       };
       dispatch(setNotification(notif2, 2500));
     }
+  };
+
+  const handleAddVideo = () => {
+    console.log(newVideos);
+  };
+  const handleEditVideo = (video, index) => {
+    let title = prompt("Please enter chapper title", video.title);
+
+    if (title && title !== "") {
+      var newItems = [...newVideos];
+      var item = { ...newItems[index], title: title };
+      console.log(item);
+      newItems[index] = item;
+      setnewVideos(newItems);
+    }
+  };
+  const handleDeleteVideo = (index) => {
+    const newItems = [...newVideos];
+    newItems.splice(index, 1);
+    setnewVideos(newItems);
   };
 
   return (
@@ -91,7 +115,72 @@ const BlogEdit = ({ blog }) => {
                   />
                 </div>
 
-                <Button className="mt-4 w-24" type="submit">
+                <div className="mb-2 block">
+                  <Label htmlFor="post-chapper" value="Chappers" />
+                </div>
+                <div>
+                  {newVideos.map((video, index) => (
+                    // <div key={index} className="mb-4 h-5 ">
+                    //   <img src={video.thumbnail} alt=""  />
+                    // </div>
+                    <div key={index} className="mb-8 flex">
+                      <img
+                        src={video.thumbnail}
+                        alt=""
+                        className="mr-5"
+                        style={{ height: 100, width: 200, objectFit: "fill" }}
+                      />
+                      <div className="flex flex-col  justify-evenly">
+                        <div className="text-xl font-bold">{video.title}</div>
+                        <div className="flex ">
+                          <button
+                            onClick={() => handleEditVideo(video, index)}
+                            type="button"
+                            className="border  bg-white hover:bg-gray-100  border-gray-200 focus:ring-4 focus:outline-none focus:ring-gray-100 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center dark:focus:ring-gray-800 dark:bg-white dark:border-gray-700 dark:text-gray-900 dark:hover:bg-gray-200 me-2 mb-2"
+                          >
+                            Edit Title
+                          </button>
+                          <button
+                            onClick={() => handleDeleteVideo(index)}
+                            type="button"
+                            className="border  bg-white hover:bg-gray-100  border-gray-200 focus:ring-4 focus:outline-none focus:ring-gray-100 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center dark:focus:ring-gray-800 dark:bg-white dark:border-gray-700 dark:text-gray-900 dark:hover:bg-gray-200 me-2 mb-2"
+                          >
+                            Delete
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                  <button
+                    onClick={handleAddVideo}
+                    style={{ height: 100, width: 200 }}
+                    type="button"
+                    className=" justify-center bg-white hover:bg-gray-100  border-4 border-dotted border-gray-200 focus:ring-4 focus:outline-none focus:ring-gray-100 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center dark:focus:ring-gray-800 dark:bg-white dark:border-gray-700 dark:text-gray-900 dark:hover:bg-gray-200 me-2 mb-2"
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      height={70}
+                      viewBox="0 0 48 48"
+                      fill="none"
+                      stroke="#B8B8B8"
+                    >
+                      <path
+                        d="M24 32L24 16"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                      <path
+                        d="M32 24L16 24"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                    </svg>
+                  </button>
+                </div>
+
+                <Button className="mt-4 w-24 text-black" type="submit">
                   Submit
                 </Button>
               </form>
