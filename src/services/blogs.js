@@ -1,5 +1,5 @@
 import axios from "axios";
-const baseUrl = process.env.REACT_APP_BE_SIDE_URL+"/blogs";
+const baseUrl = import.meta.env.VITE_BE_SIDE_URL + "/blogs";
 
 let token = null;
 
@@ -31,6 +31,7 @@ const update = async (newObject) => {
   );
   return response.data;
 };
+
 const remove = async (id) => {
   const config = {
     headers: { Authorization: token },
@@ -51,4 +52,12 @@ const postComment = async (comment, id) => {
   return response.data;
 };
 
-export default { getAll, create, update, remove, setToken, postComment };
+const generateBlogs = async () => {
+  const config = {
+    headers: { Authorization: token },
+  };
+  const response = await axios.post(`${baseUrl}/generate-blogs`, {}, config);
+  return response.data;
+};
+
+export default { getAll, create, update, remove, setToken, postComment, generateBlogs };

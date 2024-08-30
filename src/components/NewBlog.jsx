@@ -23,8 +23,8 @@ const NewBlog = () => {
         const sanitizedTitle = chapterTitle.replace(/[^a-zA-Z0-9 ]/g, '').replace(/\s+/g, '_');
         const filename = `${location.state.videoId}_${sanitizedTitle}`;
         return {
-          url: `${process.env.REACT_APP_BE_SIDE_URL}/youtube/videos/${filename}.mp4`,
-          thumbnail: `${process.env.REACT_APP_BE_SIDE_URL}/youtube/thumbnail/${filename}.png`,
+          url: `${import.meta.env.VITE_BE_SIDE_URL}/youtube/videos/${filename}.mp4`,
+          thumbnail: `${import.meta.env.VITE_BE_SIDE_URL}/youtube/thumbnail/${filename}.png`,
           filename: filename,
           title: chapterTitle,
         };
@@ -46,14 +46,14 @@ const NewBlog = () => {
         const formData = new FormData();
         formData.append("video", videoFile);
 
-        const response = await axios.post(`${process.env.REACT_APP_BE_SIDE_URL}/blogs/upload-video`, formData, {
+        const response = await axios.post(`${import.meta.env.VITE_BE_SIDE_URL}/blogs/upload-video`, formData, {
           headers: {
             'Content-Type': 'multipart/form-data'
           }
         });
 
         const uploadedVideo = {
-          url: `${process.env.REACT_APP_BE_SIDE_URL}/youtube/download-video/${response.data.url}`,
+          url: `${import.meta.env.VITE_BE_SIDE_URL}/youtube/download-video/${response.data.url}`,
           title: response.data.title,
           
         };

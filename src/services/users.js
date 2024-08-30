@@ -1,5 +1,5 @@
 import axios from "axios";
-const baseUrl = process.env.REACT_APP_BE_SIDE_URL+"/users";
+const baseUrl = import.meta.env.VITE_BE_SIDE_URL+"/users";
 
 const getAll = async () => {
   const response = await axios.get(baseUrl);

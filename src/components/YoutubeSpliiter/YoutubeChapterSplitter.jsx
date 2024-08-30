@@ -1,7 +1,7 @@
 import React, { useState, useRef } from 'react';
 import YouTube from 'react-youtube';
 import axios from 'axios';
-import './css/YoutubeChapterSplitter.css'
+import '../YoutubeSpliiter/YoutubeChapterSplitter.css'
 import { useNavigate } from 'react-router-dom';
 const YoutubeChapterSplitter = () => {
   const [videoId, setVideoId] = useState('');
@@ -24,12 +24,10 @@ const YoutubeChapterSplitter = () => {
 
   const fetchVideoDetails = async (id) => {
     try {
-      const response = await fetch(
-        `https://www.googleapis.com/youtube/v3/videos?part=snippet&id=${id}&key=${process.env.REACT_APP_GOOGLE_API_KEY}`
-      );
-      const data = await response.json();
+      const response = await axios.get(`${import.meta.env.VITE_BE_SIDE_URL}/youtube/video-details/${id}`);
+      const data = await response.data;
       const description = data.items[0].snippet.description;
-
+  
       const extractedChapters = extractChaptersFromDescription(description);
       setChapters(extractedChapters);
     } catch (error) {
@@ -71,7 +69,7 @@ const YoutubeChapterSplitter = () => {
     setIsLoading(true);  // Start loading indicator
 
     try {
-      await axios.post(process.env.REACT_APP_BE_SIDE_URL + '/youtube/trim-video', {
+      await axios.post(import.meta.env.VITE_BE_SIDE_URL + '/youtube/trim-video', {
         videoId,
         chapters: selectedChapters,
       });
@@ -90,7 +88,7 @@ const YoutubeChapterSplitter = () => {
       try {
         const sanitizedTitle = chapter.title.replace(/[^a-zA-Z0-9 ]/g, '').replace(/\s+/g, '_');
         const filename = `${videoId}_${sanitizedTitle}.mp4`;         
-        const downloadURL = `${process.env.REACT_APP_BE_SIDE_URL}/youtube/download-video/${filename}`;
+        const downloadURL = `${import.meta.env.VITE_BE_SIDE_URL}/youtube/download-video/${filename}`;
         
         const link = document.createElement("a");
         link.href = downloadURL;

@@ -18,7 +18,6 @@ const blogSlice = createSlice({
         item.id === updatedBlog.id ? updatedBlog : item
       );
     },
-
     remove(state, action) {
       const id = action.payload;
       return state.filter((blogs) => blogs.id !== id);
@@ -32,7 +31,7 @@ const blogSlice = createSlice({
   },
 });
 
-export const { create, setBlogs, edit, remove } = blogSlice.actions;
+export const { create, setBlogs, edit, remove, comment } = blogSlice.actions;
 
 export const initializeBlogs = () => {
   return async (dispatch) => {
@@ -40,6 +39,7 @@ export const initializeBlogs = () => {
     dispatch(setBlogs(blogs));
   };
 };
+
 export const createBlog = (blog) => {
   return async (dispatch) => {
     const newBlog = await blogService.create(blog);
@@ -56,7 +56,7 @@ export const updateBlog = (updatedBlog) => {
 
 export const deleteBlog = (id) => {
   return async (dispatch) => {
-    const response = await blogService.remove(id);
+    await blogService.remove(id);
     dispatch(remove(id));
   };
 };
@@ -68,6 +68,15 @@ export const commentBlog = (comment, id) => {
   return async (dispatch) => {
     const response = await blogService.postComment(formattedComment, id);
     dispatch(edit(response));
+  };
+};
+
+// New async action to generate 1000 blogs
+export const generateBlogs = () => {
+  return async (dispatch) => {
+    await blogService.generateBlogs();
+    const blogs = await blogService.getAll(); // Refresh blogs after generation
+    dispatch(setBlogs(blogs));
   };
 };
 

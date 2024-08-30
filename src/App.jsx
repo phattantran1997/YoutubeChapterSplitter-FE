@@ -5,7 +5,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { initializeBlogs } from "./reducers/blogReducer";
 import { initializeUsers, setUser } from "./reducers/userReducer";
 import BlogList from "./components/BlogList";
-import YoutubeChapterSplitter from "./components/YoutubeChapterSplitter";
+import YoutubeChapterSplitter from "./components/YoutubeSpliiter/YoutubeChapterSplitter";
 import {
   BrowserRouter as Router,
   Routes,
@@ -13,12 +13,12 @@ import {
   useMatch,
 } from "react-router-dom";
 import NewBlog from "./components/NewBlog";
-import NavigationBar from "./components/NavigationBar";
+import NavigationBar from "./components/Navigation/NavigationBar";
 import { Navigate } from "react-router-dom";
 import { initializeAllUsers } from "./reducers/allUsersReducer";
 import BlogView from "./components/BlogView";
 import UserView from "./components/UserView";
-import ExampleBlog from "./components/ExampleBlog";
+import VideoTranscoding from "./components/VideoTranscode/VideoTranscoding";
 import RegisterUser from "./components/RegisterUser";
 import ErrorPage from "./components/ErrorPage";
 import BlogEdit from "./components/BlogEdit";
@@ -78,7 +78,7 @@ const App = () => {
               path="/users/:id"
               element={<UserView userInView={userInView} />}
             />
-            <Route path="/example" element={<ExampleBlog />} />
+            <Route path="/transcoding" element={<VideoTranscoding />} />
             <Route path="/register" element={<RegisterUser />} />
             <Route path="*" element={<ErrorPage />} />
             <Route path="/posts/edit/:id" element={<BlogEdit blog={blog1} />} />

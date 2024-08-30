@@ -1,0 +1,74 @@
+/* Styles for the navigation bar */
+.navbar-style {
+    padding: 0.75rem 1.5rem; /* Adjusted padding for a sleeker look */
+    background: linear-gradient(to right, #667eea, #764ba2); /* Updated gradient for a more vibrant effect */
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15); /* Slightly stronger shadow for better depth */
+    border-radius: 0.5rem; /* Slightly more rounded corners */
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+/* Styles for the icon (ContentCutIcon) */
+.icon-style {
+    margin-right: 0.5rem; /* Slightly reduced margin for better alignment */
+    height: 2rem; /* Increased size for better visibility */
+    color: white;
+}
+
+/* Styles for the brand name text */
+.brand-name {
+    font-size: 1.5rem; /* Slightly larger font size */
+    font-weight: 700; /* Bolder font weight */
+    color: white;
+    white-space: nowrap;
+}
+
+/* Styles for navigation links */
+.link-style {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: white;
+    margin-right: 1rem; /* Added spacing between links */
+    transition: color 0.3s, transform 0.3s; /* Smoother transition and slight scaling effect */
+}
+
+.link-style:hover {
+    color: #f0f0f0; /* Slightly lighter hover color */
+    transform: scale(1.05); /* Slight scaling effect on hover */
+}
+
+/* Styles for the username displayed in the dropdown */
+.user-name {
+    display: block;
+    font-size: 0.875rem;
+    font-weight: 700;
+    color: #4a5568; /* Slightly darker gray color */
+}
+
+/* Styles for the login link */
+.login-style {
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: #63b3ed; /* Sky blue color */
+    transition: color 0.3s, transform 0.3s;
+    margin-left: auto; /* Pushes login to the far right */
+}
+
+.login-style:hover {
+    color: white;
+    transform: scale(1.05); /* Slight scaling effect on hover */
+}
+
+/* Avatar styling */
+.avatar-style {
+    width: 42px; /* Slightly larger avatar */
+    height: 42px;
+    border-radius: 50%; /* Ensure it's rounded */
+    border: 2px solid white; /* Adds a white border around the avatar */
+    transition: transform 0.3s; /* Smooth transition for scaling effect */
+}
+
+.avatar-style:hover {
+    transform: scale(1.1); /* Slight scaling effect on hover */
+}
