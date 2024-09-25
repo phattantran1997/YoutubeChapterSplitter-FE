@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import './VideoTranscoding.css';
-
 const VideoTranscoding = () => {
   const [selectedFile, setSelectedFile] = useState(null);
   const [uploadStatus, setUploadStatus] = useState('');
@@ -67,7 +66,7 @@ const VideoTranscoding = () => {
       setUploading(true);
       setUploadStatus('Uploading and transcoding video...');
 
-      const response = await axios.post(`${import.meta.env.VITE_BE_SIDE_URL}/video/new`, formData, {
+      const response = await axios.post(`${import.meta.env.VITE_BE_SIDE_URL}/video/transcoding`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },

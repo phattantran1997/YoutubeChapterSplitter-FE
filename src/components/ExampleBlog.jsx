@@ -306,14 +306,14 @@ const ExampleBlog = () => {
                 </h2>
               </div>
               <form className="mb-6">
-                <div className="py-2 px-4 mb-4 bg-white rounded-lg rounded-t-lg border border-gray-200 dark:bg-gray-800 dark:border-gray-700">
+                <div className="py-2 px-4 mb-4 bg-white rounded-lg rounded-t-lg border border-gray-200 dark:border-gray-700">
                   <label for="comment" className="sr-only">
                     Your comment
                   </label>
                   <textarea
                     id="comment"
                     rows="6"
-                    className="px-0 w-full text-sm text-gray-900 border-0 focus:ring-0 dark:text-white dark:placeholder-gray-400 dark:bg-gray-800"
+                    className="px-0 w-full text-sm text-gray-900 border-0 focus:ring-0 dark:text-white dark:placeholder-gray-400"
                     placeholder="Write a comment..."
                     required
                   ></textarea>
@@ -704,7 +704,7 @@ const ExampleBlog = () => {
 
       <aside
         aria-label="Related articles"
-        className="py-8 lg:py-24 bg-gray-50 dark:bg-gray-800"
+        className="py-8 lg:py-24 bg-gray-50"
       >
         <div className="px-4 mx-auto max-w-screen-xl">
           <h2 className="mb-8 text-2xl font-bold text-gray-900 dark:text-white">
@@ -865,7 +865,7 @@ const ExampleBlog = () => {
         </div>
       </section>
 
-      <footer className="bg-gray-50 dark:bg-gray-800">
+      <footer className="bg-gray-50">
         <div className="p-4 py-6 mx-auto max-w-screen-xl md:p-8 lg:p-10">
           <div className="grid grid-cols-2 gap-8 md:grid-cols-3 lg:grid-cols-5">
             <div>

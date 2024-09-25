@@ -19,7 +19,7 @@ export const initializeUsers = () => {
     if (loggedUserJSON) {
       const user = JSON.parse(loggedUserJSON);
       dispatch(setUser(user));
-      blogService.setToken(user.token);
+      blogService.setToken(user.accessToken);
     }
   };
 };

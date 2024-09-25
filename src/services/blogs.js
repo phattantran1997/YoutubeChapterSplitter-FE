@@ -7,9 +7,23 @@ const setToken = (newToken) => {
   token = `bearer ${newToken}`;
 };
 
-const getAll = () => {
-  const request = axios.get(baseUrl);
-  return request.then((response) => response.data);
+const getAll = async () => {
+  console.log(token);
+  const config = {
+    headers: { Authorization: token },  // Attach token here
+  };
+  const response = await axios.get(baseUrl, config);  // Pass config with headers
+  return response.data;
+};
+
+// Function to get a blog by ID
+const getById = async (id) => {
+  console.log(token);
+  const config = {
+    headers: { Authorization: token },  // Attach token here
+  };
+  const response = await axios.get(`${baseUrl}/${id}`, config);  // GET request to fetch blog by ID
+  return response.data;
 };
 
 const create = async (newObject) => {
@@ -60,4 +74,4 @@ const generateBlogs = async () => {
   return response.data;
 };
 
-export default { getAll, create, update, remove, setToken, postComment, generateBlogs };
+export default { getAll,getById, create, update, remove, setToken, postComment, generateBlogs };

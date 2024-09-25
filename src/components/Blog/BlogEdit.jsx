@@ -1,8 +1,8 @@
 import { useState } from "react";
-import { updateBlog } from "../reducers/blogReducer";
+import { updateBlog } from "../../reducers/blogReducer";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { setNotification } from "../reducers/notificationReducer";
+import { setNotification } from "../../reducers/notificationReducer";
 import { TextInput, Label, Button, Textarea, Spinner } from "flowbite-react";
 import BlogFooter from "./BlogFooter";
 

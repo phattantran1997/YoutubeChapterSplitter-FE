@@ -28,10 +28,22 @@ const blogSlice = createSlice({
         item.id === updatedBlog.id ? updatedBlog : item
       );
     },
+    setSingleBlog(state, action) {
+      const blog = action.payload;
+      // Check if the blog is already in the state, and update it if necessary
+      const exists = state.find((item) => item.id === blog.id);
+      if (exists) {
+        return state.map((item) =>
+          item.id === blog.id ? blog : item
+        );
+      } else {
+        return [...state, blog];
+      }
+    },
   },
 });
 
-export const { create, setBlogs, edit, remove, comment } = blogSlice.actions;
+export const { create, setBlogs, edit, remove, comment, setSingleBlog } = blogSlice.actions;
 
 export const initializeBlogs = () => {
   return async (dispatch) => {
@@ -77,6 +89,14 @@ export const generateBlogs = () => {
     await blogService.generateBlogs();
     const blogs = await blogService.getAll(); // Refresh blogs after generation
     dispatch(setBlogs(blogs));
+  };
+};
+
+// Async action to get a blog by its ID
+export const getBlogById = (id) => {
+  return async (dispatch) => {
+    const blog = await blogService.getById(id);
+    dispatch(setSingleBlog(blog)); // Update the state with the fetched blog
   };
 };
 

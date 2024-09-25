@@ -7,7 +7,7 @@ const getAll = async () => {
 };
 
 const addUser = async (user) => {
-  const response = await axios.post(baseUrl, user);
+  const response = await axios.post(baseUrl+"/register", user);
   return response.data;
 };
 

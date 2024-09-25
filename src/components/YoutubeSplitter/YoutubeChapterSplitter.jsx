@@ -1,8 +1,10 @@
 import React, { useState, useRef } from 'react';
 import YouTube from 'react-youtube';
 import axios from 'axios';
-import '../YoutubeSpliiter/YoutubeChapterSplitter.css'
+import './YoutubeChapterSplitter.css';
 import { useNavigate } from 'react-router-dom';
+import { useSelector } from 'react-redux';  // Import useSelector to get the user from Redux
+
 const YoutubeChapterSplitter = () => {
   const [videoId, setVideoId] = useState('');
   const [chapters, setChapters] = useState([]);
@@ -11,7 +13,12 @@ const YoutubeChapterSplitter = () => {
   const [trimSuccess, setTrimSuccess] = useState(false);
   const playerRef = useRef(null);
   const navigate = useNavigate();
+  const user = useSelector((state) => state.users); // Assuming user information is stored in users slice
+  console.log(user);
+  const userId = user ? user.user.sub : null; // Extract userId (sub)
+  console.log(userId);
 
+  // Extract Video ID from YouTube URL
   const handleVideoIdExtract = (url) => {
     const videoIdMatch = url.match(/(?:youtube\.com\/(?:[^\/\n\s]+\/\S+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
     if (videoIdMatch && videoIdMatch[1]) {
@@ -22,12 +29,11 @@ const YoutubeChapterSplitter = () => {
     }
   };
 
+  // Fetch video details from YouTube
   const fetchVideoDetails = async (id) => {
     try {
       const response = await axios.get(`${import.meta.env.VITE_BE_SIDE_URL}/youtube/video-details/${id}`);
-      const data = await response.data;
-      const description = data.items[0].snippet.description;
-  
+      const description = response.data.items[0].snippet.description;
       const extractedChapters = extractChaptersFromDescription(description);
       setChapters(extractedChapters);
     } catch (error) {
@@ -35,6 +41,7 @@ const YoutubeChapterSplitter = () => {
     }
   };
 
+  // Extract chapters from video description
   const extractChaptersFromDescription = (description) => {
     const chapterRegex = /(\d{1,2}:\d{2}(:\d{2})?)\s+(.+)/g;
     let matches;
@@ -51,12 +58,14 @@ const YoutubeChapterSplitter = () => {
     return chapters;
   };
 
+  // Seek video to a particular timestamp
   const seekToTimestamp = (timestamp) => {
     const [minutes, seconds] = timestamp.split(':').map(Number);
     const timeInSeconds = minutes * 60 + (seconds || 0);
     playerRef.current.internalPlayer.seekTo(timeInSeconds);
   };
 
+  // Handle chapter selection
   const handleCheckboxChange = (chapter) => {
     setSelectedChapters((prevSelectedChapters) =>
       prevSelectedChapters.includes(chapter)
@@ -65,48 +74,59 @@ const YoutubeChapterSplitter = () => {
     );
   };
 
+  // Handle trimming selected chapters
   const handleTrimVideos = async () => {
-    setIsLoading(true);  // Start loading indicator
+    setIsLoading(true);
 
     try {
-      await axios.post(import.meta.env.VITE_BE_SIDE_URL + '/youtube/trim-video', {
+      // Call API to trimming
+      const response = await axios.post(`${import.meta.env.VITE_BE_SIDE_URL}/youtube/trim-video`, {
         videoId,
+        user: userId,  // Pass userId to the API,
         chapters: selectedChapters,
       });
-      setTrimSuccess(true); // Indicate success
+      if (response.status === 200) {
+        setTrimSuccess(true); 
+      }
+      
     } catch (error) {
       console.error('Error trimming videos:', error);
       alert('Failed to start trimming', error);
     } finally {
-      setIsLoading(false);  // Stop loading indicator
+      setIsLoading(false);
     }
   };
 
+  // Handle download after trimming videos
   const handleDownload = async () => {
     for (let i = 0; i < selectedChapters.length; i++) {
       const chapter = selectedChapters[i];
       try {
         const sanitizedTitle = chapter.title.replace(/[^a-zA-Z0-9 ]/g, '').replace(/\s+/g, '_');
-        const filename = `${videoId}_${sanitizedTitle}.mp4`;         
-        const downloadURL = `${import.meta.env.VITE_BE_SIDE_URL}/youtube/download-video/${filename}`;
-        
+        const filename = `${videoId}_${sanitizedTitle}.mp4`;
+
+        // Fetch the pre-signed download URL
+        const response = await axios.get(`${import.meta.env.VITE_BE_SIDE_URL}/youtube/generate-download-url/${videoId}_${sanitizedTitle}`);
+        const downloadURL = response.data.downloadUrl;
+
         const link = document.createElement("a");
         link.href = downloadURL;
         link.setAttribute('download', filename);
         document.body.appendChild(link);
         link.click();
-        // Wait for a small delay to ensure the download is triggered properly
-        await new Promise((resolve) => setTimeout(resolve, 2000)); // Adjust the delay if needed
+
+        // Add delay between downloads
+        await new Promise((resolve) => setTimeout(resolve, 2000));
       } catch (error) {
         console.error('Error downloading videos:', error);
-        alert('Error downloading video:');
+        alert('Error downloading video:', error);
       }
     }
-   
   };
 
+  // Handle sharing the trimmed video
   const handleShare = () => {
-    navigate("/create",{ state: { videos: selectedChapters.map((chapter)=>chapter.title) , videoId: videoId}});
+    navigate("/post/create", { state: { videos: selectedChapters.map((chapter) => chapter.title), videoId: videoId } });
   };
 
   return (
@@ -114,14 +134,20 @@ const YoutubeChapterSplitter = () => {
       <h2 className="text-2xl font-bold mb-4">YouTube Chapter Trimmer</h2>
 
       <div className="flex gap-4 mb-4">
-        <input
+        <input 
           type="text"
           placeholder="Enter YouTube URL"
           onChange={(e) => handleVideoIdExtract(e.target.value)}
           className="border p-2 rounded w-full"
         />
       </div>
-
+      <button
+                  href="/create"
+                  onClick={handleShare}
+                  className="bg-blue-500 text-white p-2 rounded"
+                >
+                  Share on Forum
+                </button>
       {videoId && (
         <>
           <YouTube videoId={videoId} ref={playerRef} />
@@ -153,29 +179,13 @@ const YoutubeChapterSplitter = () => {
           </ul>
 
           {selectedChapters.length > 0 && (
-            <><button
+            <button
               onClick={handleTrimVideos}
               className="mt-4 bg-blue-500 text-white p-2 rounded"
               disabled={isLoading} // Disable button while loading
             >
               Trim Selected Chapters
-            </button><button
-              onClick={handleDownload}
-              className="bg-blue-500 text-white p-2 rounded"
-              style={{marginLeft:'15px'}}
-            >
-                Download
-              </button>
-              <button
-                  href="/create"
-                  onClick={handleShare}
-                  className="bg-blue-500 text-white p-2 rounded"
-                >
-                  Share on Forum
-                </button>
-                
-              </>
-
+            </button>
           )}
 
           {isLoading && (
@@ -210,4 +220,5 @@ const YoutubeChapterSplitter = () => {
     </div>
   );
 };
+
 export default YoutubeChapterSplitter;
